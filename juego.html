@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busqueda del Tesoro</title>
+    <style>
+        .container {  display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            grid-template-rows: 80px 80px 50px 50px 1fr;
+            gap: 0px 0px;
+            grid-auto-flow: row;
+            grid-template-areas:
+                ". Titulo Titulo Titulo ."
+                ". Imagen Imagen Titulo2 ."
+                ". Imagen Imagen ayuda ."
+                ". Imagen Imagen click ."
+                ". Imagen Imagen . .";
+        }
+
+        .titulo { 
+            grid-area: Titulo; 
+        }
+        h1{
+            text-align: center;
+
+        }
+
+        .imagen { 
+            grid-area: Imagen; 
+            position: relative;
+        }
+        #mapa{
+            height: calc(100vh - (80px +  80px));
+            cursor: pointer;
+        }
+        #imagenTesoro {
+            position: absolute;
+            display: none;
+        }
+
+        .titulo2 { 
+            grid-area: Titulo2; 
+            padding-left: 10px;
+            
+        }
+        h2{
+            color:#3c769b ;
+            padding:.5rem;
+            background-color:#f5f5f5;
+            border-radius:4px;
+        }
+
+        .ayuda { 
+            grid-area: ayuda; 
+            padding-left: 10px;
+            text-align: center;
+            font-size: 30px;
+        }
+        span{
+            background-color:#f5f5f5;
+        }
+
+        .click { 
+            grid-area: click; 
+            padding-left: 10px;
+            text-align: center;
+            font-size: 30px;
+        }
+        strong{
+            background-color:#f5f5f5;
+        }
+        button{
+            display: none;
+            text-align: center;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="titulo">
+            <h1>Busqueda del Tesoro Perdido</h1>
+        </div>
+        <div class="imagen">
+            <img src="./mapa.jpg" alt="" id="mapa" width="100%">
+            <img src="./cofre.png" id="imagenTesoro" width="50" src="" alt="Tesoro" style="display: none;">
+        </div>
+        <div class="titulo2">
+            <h2>CLICKS:</h2>
+        </div>
+        <div class="ayuda">
+            <span id="ayuda"></span>
+        </div>
+        <div class="click">
+            <p><strong id="contadorClick"></strong></p>
+            <!-- <span id="coordenadas"></span><br>
+            <span id="coordenadasMouse"></span> -->
+            <button type="button" id="reiniciarJuego">Reiniciar</button>
+        </div>
+      </div>
+    <script>
+        let mapa = document.getElementById("mapa")
+        let imagenTesoro = document.getElementById("imagenTesoro")
+        let contadorClick = document.getElementById("contadorClick")
+        let mensaje = document.getElementById("ayuda")
+        let reset = document.getElementById("reiniciarJuego")
+        //let coord = document.getElementById("coordenadas")
+        let ancho = 600
+        let alto = 600
+        let numeroAleatorio = (valor) => Math.floor((Math.random()*valor))
+        let tesoro
+        let juegoEnCurso = true
+        let iniciarJuego = () => {
+            tesoro = {
+                x:numeroAleatorio(ancho),
+                y:numeroAleatorio(alto),
+            }
+            //coord.innerHTML = "x: " + tesoro.x + " y: "+ tesoro.y
+            juegoEnCurso  = true
+        }
+
+        let click = 0
+        let traerDistancia = (event, tesoro) => {
+            let diferenciaX = event.offsetX - tesoro.x
+            let diferenciaY = event.offsetY - tesoro.y
+            return Math.sqrt((diferenciaX*diferenciaX)+(diferenciaY*diferenciaY))
+        }
+        let traerAyuda = distancia => {
+            return  (distancia < 15) ? "¡¡¡Felicidades!!! encontraste el tesoro" :
+                    (distancia < 40) ? "Muy caliente" :
+                    (distancia < 60) ? "Caliente" :
+                    (distancia < 80) ? "Tibio" :
+                    (distancia < 160) ? "Frio" :
+                    "Muy Frio";
+        }
+        mapa.addEventListener('click', ()=>{
+            if (!juegoEnCurso) {
+                return;
+            }
+            click++
+            let distancia = traerDistancia(event, tesoro)
+            let ayuda = traerAyuda(distancia)
+            mensaje.textContent = ayuda
+            
+            if (distancia < 15) {
+                imagenTesoro.style.left = tesoro.x - distancia + "px" 
+                imagenTesoro.style.top = tesoro.y - distancia + "px" 
+                imagenTesoro.style.display = "block"
+                reset.style.display = "block"
+                juegoEnCurso = false
+                contadorClick.textContent = click
+                //alert("Felicidades encontraste el tesoro en " + click + " clicks")
+            }
+            contadorClick.textContent = click
+        })
+
+        reset.addEventListener('click', () => {
+            click = 0
+            imagenTesoro.style.display = "none"
+            reset.style.display = "none"
+            mensaje.textContent = ""
+            contadorClick.textContent = ""
+
+            iniciarJuego();
+        });
+
+        iniciarJuego()
+
+        // mapa.addEventListener("mousemove", (event)=>{
+        //     let offsetX = event.offsetX
+        //     let offsetY = event.offsetY
+        //     document.getElementById("coordenadasMouse").textContent = "x: " + offsetX + " y: " + offsetY
+        // })
+    </script>
+</body>
+</html>
